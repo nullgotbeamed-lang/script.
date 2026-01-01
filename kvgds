@@ -1,0 +1,176 @@
+--== SERVICES ==--
+local Players = game:GetService("Players")
+local HttpService = game:GetService("HttpService")
+local StarterGui = game:GetService("StarterGui")
+local LocalPlayer = Players.LocalPlayer
+
+--== SETTINGS ==--
+local correctKey = "null"
+local savedKeyFile = "null_Key.txt"
+local linkvertiseURL = "https://link-center.net/2614359/BYI00vAS9ug5"
+local webhookURL = "https://discord.com/api/webhooks/1369424147817435208/YpLBGVfFJ31BtPBpBk4rf3FbDYKz403uRXL5ofrZsRL7m3vQeC0Z1TK07Qlv98WzTUtv"
+
+--== ANTI-HOOK PROTECTION ==--
+local function isFunctionHooked(func)
+    return not (debug.getinfo(func).what == "C")
+end
+
+local function reportBypassAttempt()
+    local payload = {
+        ["content"] = "**[KEY BYPASS DETECTED]**",
+        ["embeds"] = {{
+            ["title"] = "Bypass Attempt Logged",
+            ["description"] = "**User:** " .. LocalPlayer.Name ..
+                             "\n**UserId:** " .. LocalPlayer.UserId ..
+                             "\n**Time:** " .. os.date("%Y-%m-%d %H:%M:%S"),
+            ["color"] = tonumber(0xff0000)
+        }}
+    }
+
+    local encoded = HttpService:JSONEncode(payload)
+
+    if syn and syn.request then
+        syn.request({
+            Url = webhookURL,
+            Method = "POST",
+            Headers = {["Content-Type"] = "application/json"},
+            Body = encoded
+        })
+    elseif http_request then
+        http_request({
+            Url = webhookURL,
+            Method = "POST",
+            Headers = {["Content-Type"] = "application/json"},
+            Body = encoded
+        })
+    end
+end
+
+--== HOOK DETECTION CHECK ==--
+if (writefile and isFunctionHooked(writefile)) or
+   (readfile and isFunctionHooked(readfile)) or
+   (isfile and isFunctionHooked(isfile)) then
+    reportBypassAttempt()
+    LocalPlayer:Kick("Unauthorized modification detected. Script terminated.")
+    return
+end
+
+--== UTILS ==--
+local function saveKey()
+    if writefile then
+        writefile(savedKeyFile, correctKey)
+    end
+end
+
+local function hasValidKey()
+    if isfile and readfile and isfile(savedKeyFile) then
+        return readfile(savedKeyFile) == correctKey
+    end
+    return false
+end
+
+--== MAIN SCRIPT FUNCTION ==--
+local function loadMainScript()
+    --=========================================--
+    -- 🔻 INSERT YOUR MAIN SCRIPT BELOW THIS LINE 🔻
+    
+   loadstring(game:HttpGet("https://raw.githubusercontent.com/nullgotbeamed-lang/script/refs/heads/main/kvgd"))()
+
+    -- 🔺 INSERT YOUR MAIN SCRIPT ABOVE THIS LINE 🔺
+    --=========================================--
+end
+
+--== GUI ==--
+if hasValidKey() then
+    loadMainScript()
+    return
+end
+
+local ScreenGui = Instance.new("ScreenGui", LocalPlayer:WaitForChild("PlayerGui"))
+ScreenGui.ResetOnSpawn = false
+ScreenGui.Name = "AutoWin Key system"
+
+local Frame = Instance.new("Frame", ScreenGui)
+Frame.Size = UDim2.new(0, 300, 0, 160)
+Frame.Position = UDim2.new(0.5, -150, 0.5, -80)
+Frame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+Frame.BorderSizePixel = 0
+Frame.Active = true
+Frame.Draggable = true
+Instance.new("UICorner", Frame).CornerRadius = UDim.new(0, 8)
+
+local Title = Instance.new("TextLabel", Frame)
+Title.Size = UDim2.new(1, 0, 0, 40)
+Title.BackgroundTransparency = 1
+Title.Text = "Phoenix Scripts Key System"
+Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+Title.TextSize = 18
+Title.Font = Enum.Font.GothamBold
+
+local TextBox = Instance.new("TextBox", Frame)
+TextBox.Size = UDim2.new(0.9, 0, 0, 35)
+TextBox.Position = UDim2.new(0.05, 0, 0, 50)
+TextBox.PlaceholderText = "Enter Key Here..."
+TextBox.Text = ""
+TextBox.TextSize = 16
+TextBox.Font = Enum.Font.Gotham
+TextBox.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+TextBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+Instance.new("UICorner", TextBox).CornerRadius = UDim.new(0, 6)
+
+local Status = Instance.new("TextLabel", Frame)
+Status.Size = UDim2.new(1, 0, 0, 20)
+Status.Position = UDim2.new(0, 0, 0, 90)
+Status.BackgroundTransparency = 1
+Status.Text = ""
+Status.TextColor3 = Color3.fromRGB(200, 0, 0)
+Status.TextSize = 14
+Status.Font = Enum.Font.Gotham
+
+local SubmitButton = Instance.new("TextButton", Frame)
+SubmitButton.Size = UDim2.new(0.4, 0, 0, 30)
+SubmitButton.Position = UDim2.new(0.05, 0, 0, 115)
+SubmitButton.Text = "Submit"
+SubmitButton.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+SubmitButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+SubmitButton.Font = Enum.Font.GothamBold
+SubmitButton.TextSize = 14
+Instance.new("UICorner", SubmitButton).CornerRadius = UDim.new(0, 6)
+
+local GetKey = Instance.new("TextButton", Frame)
+GetKey.Size = UDim2.new(0.4, 0, 0, 30)
+GetKey.Position = UDim2.new(0.55, 0, 0, 115)
+GetKey.Text = "Get Key"
+GetKey.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+GetKey.TextColor3 = Color3.fromRGB(255, 255, 255)
+GetKey.Font = Enum.Font.GothamBold
+GetKey.TextSize = 14
+Instance.new("UICorner", GetKey).CornerRadius = UDim.new(0, 6)
+
+--== BUTTON LOGIC ==--
+
+SubmitButton.MouseButton1Click:Connect(function()
+    local input = TextBox.Text
+    if input == correctKey then
+        saveKey()
+        Status.Text = "Correct Key! Loading..."
+        Status.TextColor3 = Color3.fromRGB(0, 255, 0)
+        wait(1)
+        ScreenGui:Destroy()
+        loadMainScript()
+    else
+        Status.Text = "Invalid Key. Try again."
+        Status.TextColor3 = Color3.fromRGB(255, 0, 0)
+    end
+end)
+
+GetKey.MouseButton1Click:Connect(function()
+    if setclipboard then
+        setclipboard(linkvertiseURL)
+        Status.Text = "Key link copied!"
+        Status.TextColor3 = Color3.fromRGB(0, 200, 255)
+    else
+        Status.Text = "Clipboard unsupported."
+        Status.TextColor3 = Color3.fromRGB(255, 0, 0)
+    end
+end)
